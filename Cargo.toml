@@ -4,7 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rocket = "0.5.0-rc.4"
+rocket = "0.5.0-rc.3"
 shuttle-rocket = "0.32.0"
 shuttle-runtime = "0.32.0"
+shuttle-shared-db = { version= "0.32.0", features=["postgres"] }
+sqlx = { version= "0.7.1", features=["postgres"] }
 tokio = "1.26.0"
+rocket_okapi = {version = "0.8.0-rc.3", features = ["swagger"]}
+okapi = { version = "0.4.0", features = ["derive_json_schema"] }
+serde = "1.0.188"
