@@ -1,3 +1,4 @@
+pub mod request;
 
 use sqlx::{FromRow, Type};
 use crate::model::UserType::USER;

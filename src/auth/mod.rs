@@ -23,7 +23,7 @@ impl<'a> FromRequest<'a> for User {
 
                 match user {
                     Some(u) => {
-                        info!("Found apiKey for user {:?}", u.user_name);
+                        info!("Successful auth attempt from {:?}", u.user_name);
                         Outcome::Success(u)
                     },
                     None => Outcome::Failure((Status::Unauthorized, "Unknown API Key"))

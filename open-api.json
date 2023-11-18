@@ -29,9 +29,65 @@
           }
         ]
       }
+    },
+    "/signKey": {
+      "post": {
+        "operationId": "signKey",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KeySignRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KeySignResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "ApiKeyAuth": []
+          }
+        ]
+      }
     }
   },
   "components": {
+    "schemas": {
+      "KeySignResponse": {
+        "type": "object",
+        "required": [
+          "signed_key"
+        ],
+        "properties": {
+          "signed_key": {
+            "type": "string"
+          }
+        }
+      },
+      "KeySignRequest": {
+        "type": "object",
+        "required": [
+          "pub_key"
+        ],
+        "properties": {
+          "pub_key": {
+            "type": "string"
+          }
+        }
+      }
+    },
     "securitySchemes": {
       "ApiKeyAuth": {
         "description": "Requires an API Key access",
