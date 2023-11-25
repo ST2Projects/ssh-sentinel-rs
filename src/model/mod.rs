@@ -11,6 +11,7 @@ pub struct User {
     pub user_email: Option<String>,
     pub api_key: Option<String>,
     pub enabled: Option<bool>,
+    pub user_type: Option<UserType>
 }
 
 #[derive(Debug, Type)]
@@ -36,7 +37,8 @@ impl Default for User {
             user_name: Some("unknown".to_string()),
             user_email: Some("unknown@domain".to_string()),
             api_key: Some("xxx".to_string()),
-            enabled: Option::from(false)
+            enabled: Option::from(false),
+            user_type: Some(USER)
         }
     }
 }

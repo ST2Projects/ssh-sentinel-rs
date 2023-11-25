@@ -16,7 +16,7 @@ impl<'a> FromRequest<'a> for User {
 
         match request.headers().get_one("x-api-key") {
             Some(key) => {
-                let user: Option<User> = sqlx::query_as!(User, r#"SELECT user_id, user_name, api_key, user_email, enabled FROM users WHERE api_key = $1"#, key)
+                let user: Option<User> = sqlx::query_as!(User, r#"SELECT user_id, user_name, api_key, user_email, enabled, user_type AS "user_type: crate::model::UserType" FROM users WHERE api_key = $1"#, key)
                     .fetch_one(db_pool)
                     .await
                     .ok();

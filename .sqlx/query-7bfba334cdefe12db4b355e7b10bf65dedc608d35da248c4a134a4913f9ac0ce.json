@@ -1,6 +1,6 @@
 {
   "db_name": "PostgreSQL",
-  "query": "SELECT user_id, user_name, api_key, user_email, enabled FROM users WHERE api_key = $1",
+  "query": "SELECT user_id, user_name, api_key, user_email, enabled, user_type AS \"user_type: crate::model::UserType\" FROM users WHERE api_key = $1",
   "describe": {
     "columns": [
       {
@@ -27,6 +27,11 @@
         "ordinal": 4,
         "name": "enabled",
         "type_info": "Bool"
+      },
+      {
+        "ordinal": 5,
+        "name": "user_type: crate::model::UserType",
+        "type_info": "Varchar"
       }
     ],
     "parameters": {
@@ -39,8 +44,9 @@
       true,
       true,
       true,
-      true
+      true,
+      false
     ]
   },
-  "hash": "9d21cf36a47189929d3623aaf9db2fe6087301fa2980bdc48dc1e35b33233f1e"
+  "hash": "7bfba334cdefe12db4b355e7b10bf65dedc608d35da248c4a134a4913f9ac0ce"
 }
