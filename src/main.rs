@@ -23,7 +23,7 @@ async fn main(#[shuttle_shared_db::Postgres] pool: PgPool, #[shuttle_secrets::Se
 
     migrate!().run(&pool).await.expect("Failed to run migrations");
     write_open_api_spec();
-    crypto::create_signing_key()?;
+    crypto::create_signing_key(&secret_store)?;
 
     let rocket = rocket::build()
         .manage(pool)

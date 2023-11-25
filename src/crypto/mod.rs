@@ -1,28 +1,28 @@
-use std::fs::File;
-use std::io::{BufWriter, Write};
 use std::path::Path;
 use rocket::info;
-use shuttle_runtime::__internals::tracing_subscriber::fmt::MakeWriter;
-use sshcerts::PrivateKey;
-use sshcerts::ssh::KeyTypeKind;
+use shuttle_secrets::SecretStore;
+use ssh_key::{Algorithm, LineEnding, PrivateKey};
+use ssh_key::rand_core::OsRng;
 
 mod ssh;
 
-pub fn create_signing_key() -> std::io::Result<()> {
+const SSH_SIGNING_PRIV_KEY_NAME: &str = "ssh_signing.key";
+const SSH_SIGNING_PUB_KEY_NAME: &str = "ssh_signing.pub";
+const SSH_SIGNING_SECRET_NAME: &str = "SSH_KEY_PASSWORD";
 
-    let ssh_signing_priv_key = Path::new("ssh_signing.key");
-    let ssh_signing_pub_key = Path::new("ssh_signing.pub");
+pub fn create_signing_key(secret_store: &SecretStore) -> std::io::Result<()> {
+
+    let ssh_signing_priv_key = Path::new(SSH_SIGNING_PRIV_KEY_NAME);
     return match ssh_signing_priv_key.exists() {
         true => {
             info!("Signing key already exists");
             Ok(())
         }
         false => {
-            let new_priv_key = PrivateKey::new(KeyTypeKind::Ed25519, "SSH Signing Private Key").expect("Failed to create new key");
 
-            let priv_key_file = File::create(ssh_signing_priv_key)?;
-
-            new_priv_key.write(&mut priv_key_file.make_writer())?;
+            let private_key = PrivateKey::random(&mut OsRng, Algorithm::Ed25519).unwrap();
+            let enc_private_key = private_key.encrypt(&mut OsRng, secret_store.get(SSH_SIGNING_SECRET_NAME).unwrap()).unwrap();
+            enc_private_key.write_openssh_file(ssh_signing_priv_key, LineEnding::LF).unwrap();
 
             info!("Created new signing key");
 
@@ -31,6 +31,10 @@ pub fn create_signing_key() -> std::io::Result<()> {
     }
 }
 
-pub fn get_signing_key() -> PrivateKey {
-    PrivateKey::from_path(Path::new("ssh_signing.key")).expect("Failed to read private key")
+pub fn get_signing_key(secret_store: &SecretStore) -> ssh_key::Result<PrivateKey> {
+    let ssh_signing_priv_key = Path::new(SSH_SIGNING_PRIV_KEY_NAME);
+
+    let enc_priv_key = PrivateKey::read_openssh_file(ssh_signing_priv_key).unwrap();
+
+    enc_priv_key.decrypt(secret_store.get(SSH_SIGNING_SECRET_NAME).unwrap())
 }
