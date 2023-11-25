@@ -5,11 +5,12 @@ mod crypto;
 use std::fs::File;
 use std::io::Write;
 use rocket::{get};
+use rocket::log::private::info;
 use rocket::serde::json;
 use rocket_okapi::{openapi, openapi_get_routes, openapi_get_spec};
 use rocket_okapi::swagger_ui::{make_swagger_ui, SwaggerUIConfig};
 use shuttle_secrets::SecretStore;
-use sqlx::{migrate, PgPool};
+use sqlx::{migrate, PgPool, query, query_as};
 use crate::model::User;
 
 #[openapi(operation_id = "hello")]
@@ -22,6 +23,9 @@ fn index(user: User) -> Option<String> {
 async fn main(#[shuttle_shared_db::Postgres] pool: PgPool, #[shuttle_secrets::Secrets] secret_store: SecretStore) -> shuttle_rocket::ShuttleRocket {
 
     migrate!().run(&pool).await.expect("Failed to run migrations");
+
+    initialise_server(&pool, &secret_store).await;
+
     write_open_api_spec();
     crypto::create_signing_key(&secret_store)?;
 
@@ -38,6 +42,21 @@ async fn main(#[shuttle_shared_db::Postgres] pool: PgPool, #[shuttle_secrets::Se
         );
 
     Ok(rocket.into())
+}
+
+async fn initialise_server(pool: &PgPool, secret_store: &SecretStore) {
+    let query = query!( "SELECT initialised FROM config").fetch_one(pool).await.unwrap();
+
+    if !query.initialised.unwrap() {
+        info!("Performing first time setup");
+        query!(r#"INSERT INTO users(user_name, user_email, api_key, enabled, user_type) VALUES('admin', $1, $2, true, 'admin')"#, secret_store.get("ADMIN_EMAIL").unwrap(),
+            secret_store.get("ADMIN_API_KEY").unwrap()).execute(pool).await.ok();
+        info!("Created new admin user");
+
+        query!(r#"UPDATE config SET initialised = 'true'"#).execute(pool).await.ok();
+
+        info!("Initialised server!")
+    }
 }
 
 fn write_open_api_spec() {

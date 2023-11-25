@@ -1,0 +1,15 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "INSERT INTO users(user_name, user_email, api_key, enabled, user_type) VALUES('admin', $1, $2, true, 'admin')",
+  "describe": {
+    "columns": [],
+    "parameters": {
+      "Left": [
+        "Varchar",
+        "Varchar"
+      ]
+    },
+    "nullable": []
+  },
+  "hash": "55519dae0b5658bb9bd026f736d212c9a2b6412b0a3a918427f29a7994e22135"
+}

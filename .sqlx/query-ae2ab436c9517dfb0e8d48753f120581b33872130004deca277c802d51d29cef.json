@@ -1,0 +1,20 @@
+{
+  "db_name": "PostgreSQL",
+  "query": "SELECT initialised FROM config",
+  "describe": {
+    "columns": [
+      {
+        "ordinal": 0,
+        "name": "initialised",
+        "type_info": "Bool"
+      }
+    ],
+    "parameters": {
+      "Left": []
+    },
+    "nullable": [
+      true
+    ]
+  },
+  "hash": "ae2ab436c9517dfb0e8d48753f120581b33872130004deca277c802d51d29cef"
+}

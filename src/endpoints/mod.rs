@@ -1,5 +1,5 @@
 use std::time::{SystemTime, UNIX_EPOCH};
-use rocket::http::Status;
+
 use rocket::{post, State};
 use rocket::serde::json::Json;
 use rocket_okapi::openapi;
@@ -16,7 +16,7 @@ use crate::model::request::{KeySignRequest, KeySignResponse};
 #[post("/signKey", format = "application/json", data = "<sign_request>")]
 pub fn sign_key(user: User, _db_pool: &State<PgPool>, secret_store: &State<SecretStore>, sign_request: Json<KeySignRequest>) -> Json<KeySignResponse> {
 
-    let signing_key = crypto::get_signing_key(&secret_store).unwrap();
+    let signing_key = crypto::get_signing_key(secret_store).unwrap();
     let cert_req_key = PublicKey::from_openssh(&sign_request.0.pub_key).expect("Failed to parse ssh pub key");
 
     let valid_after = SystemTime::now().duration_since(UNIX_EPOCH).unwrap().as_secs();
